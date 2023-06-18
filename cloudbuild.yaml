@@ -9,3 +9,5 @@ steps:
       - --source=.
       - --trigger-http
       - --runtime=nodejs18
+options:
+  logging: CLOUD_LOGGING_ONLY
