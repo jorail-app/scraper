@@ -1,0 +1,12 @@
+{
+	"main": "ts-built/index.js",
+	"scripts": {
+		"gcp-build": "npm run build",
+		"build": "tsc",
+		"start": "npm run build && npx @google-cloud/functions-framework --target=main"
+	},
+	"devDependencies": {
+		"@google-cloud/functions-framework": "^3.2.0",
+		"typescript": "^5.1.3"
+	}
+}
