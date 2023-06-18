@@ -1,5 +1,5 @@
-type getCachedTrains = () => number[];
-type lookupTrains = (lookupUrl: string) => number[];
+// type getCachedTrains = () => number[];
+// type lookupTrains = (lookupUrl: string) => number[];
 
 //TODO - implement getCachedTrains (code below)
 
