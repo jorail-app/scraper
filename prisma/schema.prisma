@@ -11,7 +11,13 @@ datasource db {
 }
 
 model Train {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  trainNumber String @unique
-  trainkey    String @unique
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  trainNumber String  @unique
+  trainKey    String? @unique
+}
+
+model Metadata {
+  id                            String  @id @default(auto()) @map("_id") @db.ObjectId
+  lastCheckedTrainNumber        String?
+  finishedFetchingTrainsNumbers Boolean @default(false)
 }
