@@ -29,6 +29,6 @@ jobs:
         name: 'main'
         runtime: 'nodejs18'
         max_instances: 1
-        region: europe-central2
+        region: europe-west1
         env_vars:
           DATABASE_URL=${{ secrets.DATABASE_URL }}
