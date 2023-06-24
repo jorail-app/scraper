@@ -3,7 +3,7 @@ import axios from 'axios';
 import { prisma } from '../lib/prisma';
 
 type TrainNumbersResponse = Array<{
-  Number: string;
+  Numer: string;
   Key: string;
 }>;
 
@@ -20,21 +20,24 @@ export const fetchSimilarTrainsNumbers = async (
 
 // TODO: refactor this to use Promise.all and in declarative way
 export const fetchAndSaveTrainsNumbersOnce = async () => {
-  const checkedNumbers = new Set();
-  let currentNumber = 1;
+  const { lastCheckedTrainNumber, checkedTrainNumbers } =
+    (await prisma.metadata.findFirst()) ?? {};
 
+  const checkedNumbers = new Set<string>(checkedTrainNumbers ?? []);
+
+  let currentNumber = Number(lastCheckedTrainNumber ?? 1);
   while (currentNumber <= maxTrainNumber) {
-    if (checkedNumbers.has(currentNumber)) {
+    if (checkedNumbers.has(currentNumber.toString())) {
       currentNumber++;
       continue;
     }
 
     const similarNumbers = await fetchSimilarTrainsNumbers(currentNumber);
     const trains = similarNumbers.map(similarNumber => {
-      checkedNumbers.add(similarNumber.Number);
+      checkedNumbers.add(similarNumber.Numer);
 
       return {
-        trainNumber: similarNumber.Number,
+        trainNumber: similarNumber.Numer,
         trainKey: similarNumber.Key,
       };
     });
@@ -42,13 +45,19 @@ export const fetchAndSaveTrainsNumbersOnce = async () => {
     await prisma.train.createMany({ data: trains });
     await prisma.metadata.update({
       where: { id: '6496dc9ab941e5d89f4ea4ca' }, // this `id` is hardcoded in the database as a single document
-      data: { lastCheckedTrainNumber: currentNumber.toString() },
+      data: {
+        lastCheckedTrainNumber: currentNumber.toString(),
+        checkedTrainNumbers: [...checkedNumbers.values()],
+      },
     });
 
     currentNumber++;
 
     // Wait 1.5 seconds to not get blocked by the server
     await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // eslint-disable-next-line no-console -- for devs
+    console.log([...checkedNumbers.values()]);
   }
 
   return prisma.train.findMany();
@@ -64,7 +73,13 @@ export const runBackgroundTask = async () => {
   await fetchAndSaveTrainsNumbersOnce();
 };
 
-export const getLastCheckedTrainNumber = () =>
-  prisma.metadata
-    .findFirst()
-    .then(metadata => metadata?.lastCheckedTrainNumber);
+export const getCheckedTrainsNumbers = async () => {
+  const { checkedTrainNumbers } = (await prisma.metadata.findFirst()) ?? {};
+  if (checkedTrainNumbers) {
+    return checkedTrainNumbers;
+  }
+
+  return prisma.train
+    .findMany()
+    .then(trains => trains.map(train => train.trainNumber));
+};

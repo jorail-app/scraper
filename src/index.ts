@@ -1,13 +1,15 @@
 import { HttpFunction } from '@google-cloud/functions-framework';
 
 import {
-  getLastCheckedTrainNumber,
+  getCheckedTrainsNumbers,
   runBackgroundTask,
 } from './services/fetchAndSaveTrainsNumbersOnce';
 
 export const main: HttpFunction = async (_req, res) => {
   res.send(
-    `Last checked train number is  ${(await getLastCheckedTrainNumber()) ?? 1}`,
+    `<pre style="text-wrap: balance;">Checked trains numbers: ${(
+      await getCheckedTrainsNumbers()
+    ).join(', ')}`,
   );
 };
 

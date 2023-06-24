@@ -17,7 +17,8 @@ model Train {
 }
 
 model Metadata {
-  id                            String  @id @default(auto()) @map("_id") @db.ObjectId
+  id                            String   @id @default(auto()) @map("_id") @db.ObjectId
   lastCheckedTrainNumber        String?
-  finishedFetchingTrainsNumbers Boolean @default(false)
+  finishedFetchingTrainsNumbers Boolean  @default(false)
+  checkedTrainNumbers           String[] @default([])
 }
