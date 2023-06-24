@@ -29,6 +29,11 @@ jobs:
         name: 'main'
         runtime: 'nodejs18'
         max_instances: 1
-        region: europe-west1
-        env_vars:
+        region: europe-west1          
+        build_environment_variables: 
           DATABASE_URL=${{ secrets.DATABASE_URL }}
+        env_vars: 
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+
+    - id: 'test'
+      run: 'curl "${{ steps.deploy.outputs.url }}"'
