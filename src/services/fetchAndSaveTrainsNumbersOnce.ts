@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { prisma } from '../lib/prisma';
 
-const PAUSE_BETWEEN_FAILED_REQUESTS = 30000;
+const PAUSE_BETWEEN_FAILED_REQUESTS = 100000;
 let SHOULD_WAIT_BEFORE_NEXT_REQUEST = false;
 
 type TrainNumbersResponse = Array<{
