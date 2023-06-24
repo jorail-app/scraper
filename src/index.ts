@@ -1,6 +1,9 @@
 import { HttpFunction } from '@google-cloud/functions-framework';
 
-import { getAllTrains } from './trains';
+import { getAllTrains } from './services/trains';
 
-export const main: HttpFunction = (req, res) =>
-  res.send(getAllTrains().toString());
+export const main: HttpFunction = async (_req, res) => {
+  const trains = await getAllTrains();
+
+  return res.send(trains.map(train => train.trainNumber));
+};
