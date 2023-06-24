@@ -25,13 +25,16 @@ export const fetchSimilarTrainsNumbers = async (
 
 // TODO: refactor this to use Promise.all and in declarative way
 export const fetchAndSaveTrainsNumbersOnce = async () => {
-  const { lastCheckedTrainNumber, checkedTrainNumbers } =
-    (await prisma.metadata.findFirst()) ?? {};
+  const {
+    lastCheckedTrainNumber,
+    checkedTrainNumbers,
+    finishedFetchingTrainsNumbers,
+  } = (await prisma.metadata.findFirst()) ?? {};
 
   const checkedNumbers = new Set<string>(checkedTrainNumbers ?? []);
 
   let currentNumber = Number(lastCheckedTrainNumber ?? 1);
-  while (currentNumber <= maxTrainNumber) {
+  while (currentNumber <= maxTrainNumber && !finishedFetchingTrainsNumbers) {
     if (checkedNumbers.has(currentNumber.toString())) {
       currentNumber++;
       continue;
@@ -48,7 +51,12 @@ export const fetchAndSaveTrainsNumbersOnce = async () => {
     });
     checkedNumbers.add(currentNumber.toString());
 
-    await prisma.train.createMany({ data: trains });
+    await prisma.train.createMany({
+      data: trains.concat({
+        trainNumber: currentNumber.toString(),
+        trainKey: '',
+      }),
+    });
     await prisma.metadata.update({
       where: { id: '6496dc9ab941e5d89f4ea4ca' }, // this `id` is hardcoded in the database as a single document
       data: {
@@ -66,7 +74,7 @@ export const fetchAndSaveTrainsNumbersOnce = async () => {
     console.log([...checkedNumbers.values()]);
   }
 
-  return prisma.train.findMany();
+  return true;
 };
 
 export const runBackgroundTask = async () => {
