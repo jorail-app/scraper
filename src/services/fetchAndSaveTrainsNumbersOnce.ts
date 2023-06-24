@@ -12,10 +12,15 @@ const maxTrainNumber = 99999;
 export const fetchSimilarTrainsNumbers = async (
   trainNumber: string | number,
 ) => {
-  const res = await axios.get<TrainNumbersResponse>(
-    `https://portalpasazera.pl/Wyszukiwarka/WyszukajNumerPociagu?wprowadzonyTekst=${trainNumber}`,
-  );
-  return res.data;
+  try {
+    const res = await axios.get<TrainNumbersResponse>(
+      `https://portalpasazera.pl/Wyszukiwarka/WyszukajNumerPociagu?wprowadzonyTekst=${trainNumber}`,
+    );
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 };
 
 // TODO: refactor this to use Promise.all and in declarative way
@@ -41,6 +46,7 @@ export const fetchAndSaveTrainsNumbersOnce = async () => {
         trainKey: similarNumber.Key,
       };
     });
+    checkedNumbers.add(currentNumber.toString());
 
     await prisma.train.createMany({ data: trains });
     await prisma.metadata.update({
@@ -53,8 +59,8 @@ export const fetchAndSaveTrainsNumbersOnce = async () => {
 
     currentNumber++;
 
-    // Wait 1.5 seconds to not get blocked by the server
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Wait 2.5 seconds to not get blocked by the server
+    await new Promise(resolve => setTimeout(resolve, 2500));
 
     // eslint-disable-next-line no-console -- for devs
     console.log([...checkedNumbers.values()]);
