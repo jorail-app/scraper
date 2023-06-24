@@ -2,6 +2,9 @@ import axios from 'axios';
 
 import { prisma } from '../lib/prisma';
 
+const PAUSE_BETWEEN_FAILED_REQUESTS = 30000;
+let SHOULD_WAIT_BEFORE_NEXT_REQUEST = false;
+
 type TrainNumbersResponse = Array<{
   Numer: string;
   Key: string;
@@ -12,12 +15,21 @@ const maxTrainNumber = 99999;
 export const fetchSimilarTrainsNumbers = async (
   trainNumber: string | number,
 ) => {
+  if (SHOULD_WAIT_BEFORE_NEXT_REQUEST) {
+    await new Promise(resolve =>
+      setTimeout(resolve, PAUSE_BETWEEN_FAILED_REQUESTS),
+    );
+    SHOULD_WAIT_BEFORE_NEXT_REQUEST = false;
+  }
+
   try {
     const res = await axios.get<TrainNumbersResponse>(
       `https://portalpasazera.pl/Wyszukiwarka/WyszukajNumerPociagu?wprowadzonyTekst=${trainNumber}`,
     );
     return res.data;
   } catch (err) {
+    SHOULD_WAIT_BEFORE_NEXT_REQUEST = true;
+
     console.error(err);
     return [];
   }
@@ -67,8 +79,8 @@ export const fetchAndSaveTrainsNumbersOnce = async () => {
 
     currentNumber++;
 
-    // Wait 2.5 seconds to not get blocked by the server
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    // Wait 5 seconds to not get blocked by the server
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     // eslint-disable-next-line no-console -- for devs
     console.log([...checkedNumbers.values()]);

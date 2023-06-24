@@ -10,8 +10,8 @@ let isBackgroundTaskRunning = false;
 export const main: HttpFunction = async (_req, res) => {
   res.send(
     `<pre style="overflow-wrap: break-word; word-break: break-all;">Background task is ${
-      isBackgroundTaskRunning ? '' : 'not'
-    } running. Checked trains numbers: ${(await getCheckedTrainsNumbers()).join(
+      isBackgroundTaskRunning ? '' : 'not '
+    }running. Checked trains numbers: ${(await getCheckedTrainsNumbers()).join(
       ', ',
     )}`,
   );
