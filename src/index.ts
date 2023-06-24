@@ -13,10 +13,11 @@ export const main: HttpFunction = async (_req, res) => {
   );
 };
 
+// eslint-disable-next-line no-console -- for devs
+console.log('DB Link', process.env.DATABASE_URL);
+
 runBackgroundTask()
   .then(() => {
-    // eslint-disable-next-line no-console -- for devs
-    console.log('DB Link', process.env.DATABASE_URL);
     // eslint-disable-next-line no-console -- for devs
     console.log('Finished fetching trains numbers.');
   })
