@@ -1,0 +1,32 @@
+name: Deploy to Google Cloud Functions
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  job_id:
+    
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: 'actions/checkout@v3'
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      
+      with:
+        service_account: ${{ vars.SERVICE_ACCOUNT }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - id: 'deploy'
+      uses: 'google-github-actions/deploy-cloud-functions@v1'
+      with:
+        name: 'main'
+        runtime: 'nodejs18'
+        max_instances: 1
+        region: europe-central2
